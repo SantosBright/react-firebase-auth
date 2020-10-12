@@ -1,26 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import firebase from "firebase";
+import StyleFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+firebase.initializeApp({
+    apiKey: "AIzaSyBPwozVhSdpyYKRHCBOeO9PBARkfVaFk3Q",
+    authDomain: "react-firebase-auth-2b840.firebaseapp.com",
+});
+
+class App extends React.Component {
+    state = { isSigned: false };
+    uiConfig = {
+        signInFlow: "popup",
+        signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+        callbacks: {
+            signInSucess: () => false,
+        },
+    };
+
+    componentDidMount = () => {
+        
+        firebase.auth().onAuthStateChanged((user) => {
+            this.setState({ isSigned: !!user });
+        });
+    };
+    render() {
+        return (
+            <div className="App">
+                {this.state.isSigned ? (
+                    <>
+                        <h1>Signed In</h1>
+                        <h3>
+                            welcome {firebase.auth().currentUser.displayName}
+                        </h3>
+                        <img src={firebase.auth().currentUser.photoURL} />
+                        <button onClick={() => firebase.auth().signOut()}>
+                            Sign out
+                        </button>
+                    </>
+                ) : (
+                    <StyleFirebaseAuth
+                        uiConfig={this.uiConfig}
+                        firebaseAuth={firebase.auth()}
+                    />
+                )}
+            </div>
+        );
+    }
 }
 
 export default App;
